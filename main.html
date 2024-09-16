@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    </head>
+    <body>
+        <canvas></canvas>
+
+        <script>
+            const canvas = document.querySelector('canvas')
+            const c = canvas.getContext('2d')
+
+            canvas.width = innerWidth - 20;
+            canvas.height = innerHeight - 20;
+
+            const windowWidthMeter = .34 ;
+            const windowHeightMeter = .164 ;
+
+            const pixelWidth = windowWidthMeter/canvas.width;
+            const pixelHeight = windowHeightMeter/canvas.height;
+
+            const pixelSize = (pixelHeight+pixelWidth)/2;
+            //const pixelSize = 0.00020101509747341603;
+
+            const centX = canvas.width/2;
+            const centY = canvas.height/2;
+
+            const halfScreenX = windowWidthMeter/2;
+            const halfScreenY = windowHeightMeter/2;
+
+            console.log('centX: '+centX+'     centY: '+centY)
+
+            console.log('canvas.width: '+canvas.width+'px canvas.height: '+canvas.height+'px');
+
+            console.log('single pixel width: ' +pixelWidth+'   single pixel height:'+pixelHeight);
+
+            console.log('pixel size: '+pixelSize);
+            
+
+            let zoom = 1;
+            let mouseButtons = [0,0,0,0,0];
+            let mousePosition = [0,0];
+            let wheelPos = 0;
+            let deltaWheel = 0; 
+            let wheelDragStartPosition = [0,0];
+            let wheelDragDelta = [0,0];
+            let lastWheelDragDelta = [0,0];
+            let totalWheelDragDelta = [0,0];
+            const buttonNames = ["left", "wheel", "right", "back", "forward"];
+
+        </script>
+
+        <script src = "Vector2.js"></script>
+        <script src = "DrawUtillsMeter.js"></script>
+        <script src = "particle(old).js"></script>
+        <script src = "main.js"></script>
+
+
+        <script>
+            
+//  GET WHEEL POSITION
+            canvas.addEventListener("wheel" , function(evt){
+                event.preventDefault();
+                deltaWheel = event.deltaY/1000;
+                wheelPos += deltaWheel;
+                zoom = Math.pow(10,wheelPos);
+            })
+
+//  GET MOUSE BOTTONS
+    //  MOUSE DOWN
+            addEventListener('mousedown',function(){
+
+                event.preventDefault();
+
+                mouseButtons[event.button] = 1;
+
+                if (event.button == 1){
+                    wheelDragStartPosition[0] = mousePosition[0];
+                    wheelDragStartPosition[1] = mousePosition[1];
+                }
+
+            });
+
+    //  MOUSE UP
+            addEventListener('mouseup',function(){
+
+                event.preventDefault();
+
+                mouseButtons[event.button] = 0;
+
+                lastWheelDragDelta[0] += wheelDragDelta[0] 
+                lastWheelDragDelta[1] += wheelDragDelta[1] 
+
+
+            });
+
+            //  GET MOUSE POSITION
+            canvas.addEventListener('mousemove',function(evt){
+                var rect = canvas.getBoundingClientRect();
+                mousePosition = [evt.clientX - rect.left,evt.clientY - rect.top + 1];
+                //console.log(mousePosition);
+
+                if (mouseButtons[1]){
+                    wheelDragDelta[0] = mousePosition[0] - wheelDragStartPosition[0];
+                    wheelDragDelta[1] = mousePosition[1] - wheelDragStartPosition[1];
+
+                    totalWheelDragDelta[0] = wheelDragDelta[0] + lastWheelDragDelta[0];
+                    totalWheelDragDelta[1] = wheelDragDelta[1] + lastWheelDragDelta[1];
+
+                };
+
+            });
+
+//  MAIN LOOP            
+            function MainLoop(){
+                Sim.Update();
+                window.requestAnimationFrame(MainLoop);
+            }
+
+            Sim.InitSimulation();
+
+            MainLoop();
+        </script>
+    </body>
+</html>
